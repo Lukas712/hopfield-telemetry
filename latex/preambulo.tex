@@ -1,0 +1,85 @@
+% ===================== Codificação, idioma e tipografia =====================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[brazilian]{babel}
+\usepackage{csquotes}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.1}
+\setlength{\emergencystretch}{2em}
+
+% ============================== Matemática ==================================
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\numberwithin{equation}{section}
+
+% ====================== Tabelas, figuras, listas e caixas ===================
+\usepackage{graphicx}
+\usepackage{booktabs,array,tabularx,longtable,multirow}
+\usepackage{xcolor}
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=4pt}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric}
+\usepackage[skins,breakable]{tcolorbox}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newtcolorbox{notabox}[1]{colback=yellow!8,colframe=orange!60!black,
+  fonttitle=\bfseries,title={#1},boxrule=0.6pt,arc=2pt,breakable}
+
+% =========================== Algoritmos e listagens =========================
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\floatname{algorithm}{Algoritmo}
+\algrenewcommand\algorithmicrequire{\textbf{Entrada:}}
+\algrenewcommand\algorithmicensure{\textbf{Saída:}}
+\algrenewcommand\algorithmicend{\textbf{fim}}
+\algrenewcommand\algorithmicwhile{\textbf{enquanto}}
+\algrenewcommand\algorithmicdo{\textbf{faça}}
+\algrenewcommand\algorithmicfor{\textbf{para}}
+\algrenewcommand\algorithmicforall{\textbf{para todo}}
+\algrenewcommand\algorithmicif{\textbf{se}}
+\algrenewcommand\algorithmicthen{\textbf{então}}
+\algrenewcommand\algorithmicelse{\textbf{senão}}
+\algrenewcommand\algorithmicreturn{\textbf{retorne}}
+\algrenewcommand\algorithmicrepeat{\textbf{repita}}
+\algrenewcommand\algorithmicuntil{\textbf{até que}}
+
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,frame=single,
+  columns=fullflexible,keepspaces=true,xleftmargin=2pt,xrightmargin=2pt}
+
+% ============================ Teoremas e definições =========================
+\theoremstyle{plain}
+\newtheorem{proposicao}{Proposição}[section]
+\theoremstyle{definition}
+\newtheorem{definicao}[proposicao]{Definição}
+\theoremstyle{remark}
+\newtheorem{observacao}[proposicao]{Observação}
+\addto\captionsbrazilian{\renewcommand{\proofname}{Demonstração}}
+
+% ================================= Macros ===================================
+\newcommand{\R}{\mathbb{R}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\lse}{lse}
+\DeclareMathOperator{\softmax}{softmax}
+\newcommand{\hamm}{d_{\mathrm{H}}}
+\newcommand{\sstar}{s^{\ast}}
+% Marcadores de conteúdo pendente (texto e células de tabela)
+\newcommand{\apreencher}[1][]{\textcolor{red!70!black}{\textbf{[a preencher\ifx&#1&\else: #1\fi]}}}
+\newcommand{\lacuna}{\textcolor{red!70!black}{$\cdots$}}
+
+% ======================= Hiperlinks (carregar por último) ===================
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
+  urlcolor=blue!50!black,unicode=true,
+  pdftitle={Detecção de Anomalias em Telemetria de Sistemas Utilizando Redes de Hopfield},
+  pdfauthor={Equipe}]{hyperref}
+\usepackage{xurl}

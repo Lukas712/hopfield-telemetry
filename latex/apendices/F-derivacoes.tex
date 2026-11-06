@@ -1,0 +1,93 @@
+\section{Derivações}\label{apx:deriv}
+
+As derivações abaixo são nossas (a menos de onde há citação) e complementam as seções~\ref{sec:teoria}
+e~\ref{sec:metodo}.
+
+\subsection{Energia de Hebb em função das sobreposições}
+Com $w_{ij}=\tfrac1N\sum_{\mu}\xi_i^\mu\xi_j^\mu$ para $i\neq j$, $w_{ii}=0$, $\theta=0$ e a sobreposição
+$m_\mu(s)=\tfrac1N\,\xi^\mu\!\cdot s$, como $(\xi_i^\mu s_i)^2=1$,
+\[
+E(s)=-\tfrac12\sum_{i\neq j}w_{ij}s_is_j
+=-\frac1{2N}\sum_{\mu=1}^{K}\Bigl[\Bigl(\sum_i\xi_i^\mu s_i\Bigr)^{2}-\sum_i(\xi_i^\mu s_i)^2\Bigr]
+=-\frac N2\sum_{\mu=1}^{K}m_\mu(s)^2+\frac K2 .
+\]
+Consequências: (i) $E$ depende de $s$ só pelas sobreposições, e seus mínimos são estados com $|m_\mu|$ grande;
+(ii) $E(-s)=E(s)$, de modo que $-\xi^\mu$ é tão profundo quanto $\xi^\mu$; (iii) se os outros padrões são
+quase ortogonais a $\xi^\nu$, $E(\xi^\nu)\approx-\tfrac N2+\tfrac K2$. A energia da CAM de Hopfield e
+Tank~\cite[Eq.~5]{hopfieldtank1985}, $-\tfrac12\sum_s(V^s\!\cdot V)^2$, é $N$ vezes a nossa a menos de uma
+constante aditiva, com mínimos de profundidade ${\approx}-\tfrac12N^2$.
+
+\subsection{Ruído cruzado da regra de Hebb}
+Para o padrão armazenado $\xi^\nu$, o campo local se decompõe em
+$h_i(\xi^\nu)=\tfrac{N-1}{N}\xi_i^\nu+\eta_i$, com
+$\eta_i=\tfrac1N\sum_{\mu\neq\nu}\sum_{j\neq i}\xi_i^\mu\xi_j^\mu\xi_j^\nu$. Se os padrões são independentes e não
+viesados, cada parcela $\xi_i^\mu\xi_j^\mu\xi_j^\nu$ ($\mu\neq\nu$, $j\neq i$) é uma variável $\pm1$ uniforme e
+independente das demais (contém o fator $\xi_j^\mu$, exclusivo do par $(\mu,j)$). Logo $\mathbb E[\eta_i]=0$ e
+$\mathrm{Var}[\eta_i]=\tfrac{(K-1)(N-1)}{N^2}\approx\tfrac{K-1}{N}$. Pelo teorema central do limite, o bit $i$ é
+trocado no primeiro passo com probabilidade ${\approx}\,\Phi\bigl(-\sqrt{N/K}\bigr)$, em que $\Phi$ é a função de
+distribuição normal padrão. A Tabela~\ref{tab:ruido} mostra a aproximação e o resultado de uma simulação
+($N=1000$, 20 repetições). É apenas uma estimativa do \emph{primeiro passo} a partir de um padrão exato; o
+limite crítico de $0{,}138N$ vem de uma análise mais completa~\cite{hertz1991}.
+\begin{table}[htbp]
+\centering
+\caption{Probabilidade de erro por bit no primeiro passo, a partir de um padrão armazenado (regra de Hebb,
+padrões aleatórios não viesados).}
+\label{tab:ruido}
+\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$K/N$ & Desvio padrão do ruído $\sqrt{K/N}$ & $\Phi(-\sqrt{N/K})$ & Simulação\\
+\midrule
+0,05  & 0,22 & $3{,}9\times10^{-6}$ & $5{,}0\times10^{-6}$\\
+0,10  & 0,32 & $7{,}8\times10^{-4}$ & $7{,}0\times10^{-4}$\\
+0,138 & 0,37 & $3{,}6\times10^{-3}$ & $3{,}5\times10^{-3}$\\
+0,20  & 0,45 & $1{,}3\times10^{-2}$ & $1{,}3\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{A energia da rede moderna como mínimo suave}
+Como $x_i^{\top}\xi=\tfrac12\|x_i\|^2+\tfrac12\|\xi\|^2-\tfrac12\|\xi-x_i\|^2$,
+\[
+\lse(\beta,X^{\top}\xi)=\beta^{-1}\ln\sum_i e^{\beta x_i^{\top}\xi}
+=\tfrac12\|\xi\|^2+\beta^{-1}\ln\sum_i e^{\frac12\beta\|x_i\|^2}e^{-\frac12\beta\|\xi-x_i\|^2}.
+\]
+Em~\eqref{eq:energia-moderna} o termo $\tfrac12\xi^{\top}\xi$ se cancela, e
+\[
+E(\xi)=-\beta^{-1}\ln\sum_i e^{\frac12\beta\|x_i\|^2}e^{-\frac12\beta\|\xi-x_i\|^2}+\beta^{-1}\ln K+\tfrac12M^2 .
+\]
+Se $\|x_i\|=M$ para todo $i$, o fator $e^{\frac12\beta M^2}$ sai da soma e cancela $\tfrac12M^2$. Com
+$d_i=\tfrac12\|\xi-x_i\|^2$,
+\[
+E(\xi)=-\beta^{-1}\ln\Bigl[\frac1K\sum_{i=1}^{K}e^{-\beta d_i}\Bigr],\qquad
+\min_i d_i\;\le\;E(\xi)\;\le\;\frac1K\sum_i d_i .
+\]
+A primeira desigualdade vem de $e^{-\beta d_i}\le e^{-\beta\min_j d_j}$ para todo $i$; a segunda, da
+desigualdade de Jensen. Quando $\beta\to\infty$, $E\to\min_i d_i$ (vizinho mais próximo); quando $\beta\to0$,
+$E\to\tfrac1K\sum_i d_i$, cujo mínimo em $\xi$ é o centroide dos padrões. Além disso,
+$e^{-\beta E(\xi)}=\tfrac1K\sum_i\exp\bigl(-\|\xi-x_i\|^2/(2\sigma^2)\bigr)$ com $\sigma^2=1/\beta$ é, a menos
+de uma constante, uma estimativa de densidade por kernel gaussiano, de modo que $E(\xi)=-\beta^{-1}\ln\hat p(\xi)+\text{const.}$
+
+\subsection{Padrões binários: distância de Hamming e separação}
+Para $x,y\in\{-1,+1\}^N$, coordenadas iguais contribuem com $+1$ a $x^{\top}y$ e coordenadas diferentes, com
+$-1$; logo $x^{\top}y=N-2\hamm(x,y)$, $\|x-y\|^2=4\hamm(x,y)$ e $\tfrac12\|x-y\|^2=2\hamm(x,y)$. Para a separação
+$\Delta_i=x_i^{\top}x_i-\max_{j\neq i}x_i^{\top}x_j$ dos Teoremas~4 e~5 de Ramsauer et al.~\cite{ramsauer2021},
+\[
+\Delta_i=N-\bigl(N-2\min_{j\neq i}\hamm(x_i,x_j)\bigr)=2\min_{j\neq i}\hamm(x_i,x_j).
+\]
+Portanto, com protótipos binários, a energia moderna é um mínimo suave das distâncias de Hamming,
+$E(s)=-\beta^{-1}\ln\bigl[\tfrac1K\sum_ie^{-2\beta\hamm(s,x_i)}\bigr]$, e a facilidade de recuperar um protótipo
+depende da sua distância de Hamming ao protótipo mais próximo.
+
+\subsection{Distância de Hamming na codificação em termômetro}
+Para um atributo com limiares $\tau_1<\dots<\tau_{b'}$ (distintos, como na Seção~\ref{sec:codificacao}), seja
+$r(x)=\#\{l:x>\tau_l\}$ o posto de $x$. Como os limiares são crescentes, $x>\tau_l$ se, e somente se,
+$l\le r(x)$, e o código é $(+1)^{r(x)}(-1)^{b'-r(x)}$. Para dois valores com postos $r\le r'$, os códigos diferem
+exatamente nas posições $r<l\le r'$, de modo que
+\[
+\hamm\bigl(\mathrm{cod}(x),\mathrm{cod}(x')\bigr)=\bigl|r(x)-r(x')\bigr| .
+\]
+A distância entre estados completos é a soma dessas diferenças de postos sobre os atributos, mais as
+discordâncias nos bits de novidade. Como os limiares são quantis empíricos do treino, $r(x)/(b+1)$ aproxima a
+função de distribuição empírica do atributo; assim a distância é invariante a reescalonamentos monótonos de
+cada atributo.

@@ -1,0 +1,130 @@
+\section{Pseudocódigos e notas de implementação}\label{apx:algoritmos}
+
+Os algoritmos usam a notação da Seção~\ref{sec:teoria}: $N$ neurônios, $K$ padrões, estados em $\{-1,+1\}^N$ e
+limiares $\theta=0$. Descrevem o projeto da implementação; o código dos experimentos não faz parte desta versão
+do relatório.
+
+\begin{algorithm}[htbp]
+\caption{Armazenamento de $K$ padrões (regra de Hebb ou de Storkey).}\label{alg:armazenar}
+\begin{algorithmic}[1]
+\Require padrões $\xi^1,\dots,\xi^K\in\{-1,+1\}^N$; regra $\in\{\text{Hebb},\text{Storkey}\}$
+\Ensure $W\in\R^{N\times N}$ simétrica, com $w_{ii}=0$
+\State $W\gets 0$
+\For{$\nu=1,\dots,K$}
+  \If{regra $=$ Hebb}
+    \State $W\gets W+\tfrac1N\,\xi^\nu\xi^{\nu\top}$ \Comment{Eq.~\eqref{eq:hebb}}
+  \Else
+    \State $u\gets W\xi^\nu$
+    \State $W\gets W+\tfrac1N\bigl(\xi^\nu\xi^{\nu\top}-\xi^\nu u^{\top}-u\,\xi^{\nu\top}+2W\bigr)$
+    \Comment{Eq.~\eqref{eq:storkey}}
+  \EndIf
+  \State zerar a diagonal de $W$
+\EndFor
+\State \Return $W$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Forma matricial da regra de Storkey.} Como $w_{ii}=0$, o campo local que exclui $i$ e $j$ é
+$h_{ij}^{\nu}=\sum_{k\neq i,j}w_{ik}\xi_k^\nu=u_i-w_{ij}\xi_j^\nu$, com $u=W^{\nu-1}\xi^\nu$, e
+analogamente $h_{ji}^{\nu}=u_j-w_{ji}\xi_i^\nu$. Usando $(\xi_i^\nu)^2=(\xi_j^\nu)^2=1$ e $w_{ij}=w_{ji}$,
+\[
+\xi_i^\nu h_{ji}^\nu+\xi_j^\nu h_{ij}^\nu=\xi_i^\nu u_j+u_i\xi_j^\nu-2w_{ij}^{\nu-1},
+\]
+e a recursão~\eqref{eq:storkey} fica, para $i\neq j$,
+$w_{ij}^{\nu}=w_{ij}^{\nu-1}+\tfrac1N\bigl(\xi_i^\nu\xi_j^\nu-\xi_i^\nu u_j-u_i\xi_j^\nu+2w_{ij}^{\nu-1}\bigr)$,
+que é a forma matricial do Algoritmo~\ref{alg:armazenar} fora da diagonal; a diagonal é zerada depois de cada
+padrão. Conferimos a equivalência numericamente: com $N=40$ e $K=6$ padrões aleatórios, a diferença máxima entre
+a recursão elemento a elemento e a forma matricial foi da ordem de $10^{-16}$.
+
+\begin{algorithm}[htbp]
+\caption{Recuperação assíncrona (rede clássica).}\label{alg:recuperar}
+\begin{algorithmic}[1]
+\Require $W$ (com $\theta=0$); estado inicial $s^0\in\{-1,+1\}^N$; número máximo de varreduras $T_{\max}$
+\Ensure estado final $\sstar$; número $T$ de varreduras com ao menos uma troca
+\State $s\gets s^0$; \quad $T\gets0$
+\For{$t=1,\dots,T_{\max}$}
+  \State sortear uma permutação $\pi$ de $\{1,\dots,N\}$; \quad $\mathrm{mudou}\gets\text{falso}$
+  \ForAll{$k$ na ordem de $\pi$}
+    \State $h\gets\sum_{j}w_{kj}s_j$
+    \State $s_k'\gets+1$ se $h\ge0$ e $s_k'\gets-1$ caso contrário \Comment{Eq.~\eqref{eq:update}}
+    \If{$s_k'\neq s_k$}
+      \State $s_k\gets s_k'$; \quad $\mathrm{mudou}\gets\text{verdadeiro}$
+    \EndIf
+  \EndFor
+  \If{não $\mathrm{mudou}$}
+    \State \textbf{interromper}
+  \EndIf
+  \State $T\gets T+1$
+\EndFor
+\State \Return $(s,\,T)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htbp]
+\caption{Detector \emph{one-class} com a rede de Hopfield clássica.}\label{alg:detectar}
+\begin{algorithmic}[1]
+\Require $S_{\mathrm{aj}}$ e $S_{\mathrm{cal}}$ (treino sem rótulos); níveis $b$; número $K$ de protótipos;
+regra de armazenamento; taxa $\alpha$; $T_{\max}$; escore $a\in\{S_1,\dots,S_6\}$ (Tabela~\ref{tab:escores})
+\Ensure para cada observação $x$, o escore $a(x)$ e o rótulo previsto $\hat y$
+\Statex \textbf{Ajuste (uma vez por máquina)}
+\State determinar os limiares do termômetro e os atributos constantes em $S_{\mathrm{aj}}$
+\Comment{Seção~\ref{sec:codificacao}}
+\State escolher $K$ medoides $\xi^1,\dots,\xi^K$ entre os códigos de $S_{\mathrm{aj}}$, no espaço de Hamming
+\Comment{Seção~\ref{sec:prototipos}}
+\State $W\gets$ Algoritmo~\ref{alg:armazenar}$(\xi^1,\dots,\xi^K)$
+\State $\tau\gets$ quantil de ordem $1-\alpha$ de $\{a(x):x\in S_{\mathrm{cal}}\}$, com $a(x)$ calculado como abaixo
+\Statex \textbf{Decisão (por observação $x$)}
+\State $s^0\gets\mathrm{cod}(x)$
+\State $(\sstar,T)\gets$ Algoritmo~\ref{alg:recuperar}$(W,s^0,T_{\max})$
+\State calcular $a(x)$ a partir de $s^0$, $\sstar$, $T$ e dos protótipos
+\State \Return $a(x)$ e $\hat y=\mathbf 1\bigl[a(x)>\tau\bigr]$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htbp]
+\caption{Recuperação e escores da rede de Hopfield moderna.}\label{alg:moderna}
+\begin{algorithmic}[1]
+\Require memória $X\in\R^{N\times K}$ (padrões nas colunas); $M=\max_i\|x_i\|$; $\beta>0$; consulta $\xi^0\in\R^N$;
+número de atualizações $T\ge1$ ($T=1$ por padrão)
+\Ensure estado final $\xi^{T}$; energia $E(\xi^0)$; resíduo $r$; entropia $H$
+\State $p\gets\softmax\bigl(\beta X^{\top}\xi^0\bigr)$
+\State $E_0\gets-\lse\bigl(\beta,X^{\top}\xi^0\bigr)+\tfrac12\xi^{0\top}\xi^0+\beta^{-1}\ln K+\tfrac12M^2$
+\Comment{Eq.~\eqref{eq:energia-moderna}}
+\State $H\gets-\sum_ip_i\ln p_i$
+\For{$t=1,\dots,T$}
+  \State $\xi^{t}\gets X\,\softmax\bigl(\beta X^{\top}\xi^{t-1}\bigr)$ \Comment{Eq.~\eqref{eq:update-moderna}}
+\EndFor
+\State $r\gets\|\xi^{0}-\xi^{1}\|$
+\State \Return $\xi^{T}$, $E_0$, $r$, $H$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Notas de implementação.}
+\begin{itemize}
+  \item \textbf{Estabilidade numérica (rede moderna):} $\lse$ e $\softmax$ são calculados subtraindo o máximo de
+        $\beta X^{\top}\xi$, para evitar estouro numérico com $\beta$ grande.
+  \item \textbf{Vetorização:} a regra de Storkey e as distâncias de Hamming aos protótipos usam produtos
+        matriciais; em estados $\pm1$, $\hamm(a,b)=\tfrac12(N-a^{\top}b)$.
+  \item \textbf{Ordem de atualização:} a ordem aleatória de cada varredura é gerada por uma semente fixada, e
+        os resultados são repetidos com 3 sementes (Seção~\ref{sec:divisao}).
+  \item \textbf{Empates:} $h_k=0$ leva a $+1$, conforme a Eq.~\eqref{eq:update}; a Proposição~\ref{prop:conv} cobre
+        esse caso.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Custo aproximado por operação ($T$: número de varreduras ou atualizações; $K$: padrões armazenados).}
+\label{tab:complexidade}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Operação & Clássica (Hebb/Storkey) & Moderna\\
+\midrule
+Armazenar $K$ padrões & $O(KN^2)$ & $O(NK)$ (guardar $X$)\\
+Memória & $O(N^2)$ & $O(NK)$\\
+Uma varredura / atualização & $O(N^2)$ & $O(NK)$\\
+Recuperação completa & $O(TN^2)$ & $O(TNK)$\\
+Escores de distância aos protótipos & $O(NK)$ & ---\\
+\bottomrule
+\end{tabular}
+\end{table}

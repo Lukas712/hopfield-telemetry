@@ -1,0 +1,62 @@
+% Relatório técnico --- Detecção de anomalias em telemetria com redes de Hopfield
+% Compilador: pdfLaTeX (padrão do Overleaf). Documento principal: main.tex
+\documentclass[a4paper,11pt]{article}
+\input{preambulo}
+
+\title{\textbf{Detecção de Anomalias em Telemetria de Sistemas\\ Utilizando Redes de Hopfield}\\[0.8em]
+  \large Trabalho de Implementação de Redes Neurais Artificiais\\
+  \large Tema: Redes baseadas em Memória Associativa (Redes Neurais Recorrentes)}
+\author{\apreencher[nome do integrante 1] \and \apreencher[nome do integrante 2] \and
+  \apreencher[nome do integrante 3]\\[0.6em]
+  \small \apreencher[instituição, curso e disciplina]}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Este relatório apresenta o projeto de um detector de anomalias em telemetria de sistemas baseado em
+redes de Hopfield, o modelo clássico de memória associativa recorrente. O problema é tratado como
+classificação binária (normal $\times$ anômalo) sobre métricas de utilização e atividade de máquinas
+servidoras (carga de CPU, uso de memória e de rede, entre outras). Usamos o \emph{Server Machine Dataset}
+(SMD): 28 máquinas, 38 métricas amostradas por minuto e 708.420 pontos de teste, dos quais 4,16\,\% são
+anômalos. A abordagem armazena na matriz de pesos protótipos do funcionamento normal (regras de Hebb e de
+Storkey), recupera cada observação por dinâmica assíncrona e usa distância de Hamming e energia como escores
+de anomalia; a rede de Hopfield moderna (Ramsauer et al.) entra como variante. O texto cobre a teoria
+(energia, convergência, capacidade, estados espúrios), a análise dos dados, o protocolo experimental
+(divisões cronológicas, métricas, linhas de base clássicas e o protocolo com LLM da Etapa~II) e uma
+comparação crítica a priori. Os resultados experimentais ainda não foram obtidos: as tabelas
+correspondentes estão marcadas como lacunas a preencher.
+
+\medskip
+\noindent\textbf{Palavras-chave:} redes de Hopfield; memória associativa; detecção de anomalias;
+telemetria de sistemas; classificação binária; \emph{Server Machine Dataset}.
+\end{abstract}
+
+\thispagestyle{empty}
+\newpage
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+\input{secoes/01-introducao}
+\input{secoes/02-fundamentacao}
+\input{secoes/03-problema-dados}
+\input{secoes/04-metodologia}
+\input{secoes/05-resultados}
+\input{secoes/06-comparacao-critica}
+\input{secoes/07-conclusoes}
+
+\input{referencias}
+
+\appendix
+\renewcommand{\thesection}{\Alph{section}}
+\input{apendices/A-pseudocodigo}
+\input{apendices/B-exemplo-numerico}
+\input{apendices/C-prompt-llm}
+\input{apendices/D-cronograma}
+\input{apendices/E-checklist}
+\input{apendices/F-derivacoes}
+\input{apendices/G-maquinas}
+
+\end{document}

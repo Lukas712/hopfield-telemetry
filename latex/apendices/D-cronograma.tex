@@ -1,0 +1,55 @@
+\section{Cronograma proposto}\label{apx:cronograma}
+
+As apresentações remotas ocorrem em 02 e 04/12~\cite{enunciado}. O enunciado não informa a data de entrega do
+relatório, nem em qual dos dois dias cada equipe apresenta; o plano abaixo é uma \textbf{proposta}, que supõe a
+entrega do relatório e dos \emph{slides} até a véspera da primeira apresentação (01/12), e deve ser confirmada com
+o professor.
+
+\begin{table}[htbp]
+\centering
+\caption{Cronograma proposto (datas de 2026).}
+\label{tab:cronograma}
+\small
+\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.3cm}>{\hsize=1.5\hsize}L>{\hsize=.5\hsize}L@{}}
+\toprule
+ & Período & Atividades & Entrega\\
+\midrule
+1 & 06--13/11 &
+Confirmar com o professor o uso da rede de Hopfield como modelo do tema, as linhas de base e as datas;
+dividir as tarefas; baixar o SMD (registrar o \emph{commit}); implementar leitura, divisões e codificação em
+termômetro; implementar Hebb, Storkey, recuperação e escores; executar E1a. &
+Dados e rede clássica validados em E1a\\
+2 & 16--20/11 (20/11: feriado) &
+Seleção de protótipos e E1b; detector nas máquinas 1-3, 2-5 e 3-6; linhas de base (\emph{Random Forest}, SVM,
+OC-SVM e \emph{k}-NN); escolha do limiar em $L_{\mathrm{val}}$. &
+Primeiros resultados da Etapa~I nas 3 máquinas\\
+3 & 23--27/11 &
+Protocolo~S (18 máquinas) e Protocolo~U (28); ablações; rede moderna ($\beta$); Etapa~II (\emph{zero-shot} e
+\emph{few-shot}, com registro de tempo e custo); preencher a Seção~\ref{sec:resultados}. &
+Seção~\ref{sec:resultados} completa\\
+4 & 30/11--01/12 &
+Revisar as Seções~\ref{sec:critica} e~\ref{sec:conclusoes} e o resumo à luz dos resultados; conferir as
+referências; preparar os \emph{slides} e ensaiar. &
+Relatório e \emph{slides}\\
+5 & 02 e 04/12 & Apresentação remota. & ---\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Divisão de tarefas (equipe de até 3 integrantes).}
+\begin{itemize}
+  \item \textbf{Integrante A} (\apreencher[nome]): dados, divisões, linhas de base clássicas e métricas.
+  \item \textbf{Integrante B} (\apreencher[nome]): rede de Hopfield (clássica e moderna), E1 e ablações.
+  \item \textbf{Integrante C} (\apreencher[nome]): Etapa~II (\emph{prompt}, execução e custo) e revisão do texto.
+\end{itemize}
+
+\paragraph{Riscos e mitigação.}
+\begin{itemize}
+  \item \textbf{Hopfield próximo do acaso:} o resultado é registrado e analisado como achado (ablações e
+        Seção~\ref{sec:critica}); a comparação crítica vale igualmente.
+  \item \textbf{Prazo apertado:} priorizar o Protocolo~S nas 3 máquinas representativas e estender às 18 depois.
+  \item \textbf{Custo ou latência da API:} reduzir $n$, usar o modelo mais barato disponível e limitar $k=20$ a
+        uma semente.
+  \item \textbf{Modelo fora da lista do enunciado:} a confirmação com o professor é a primeira atividade do
+        cronograma.
+\end{itemize}

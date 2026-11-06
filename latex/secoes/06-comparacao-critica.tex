@@ -1,0 +1,103 @@
+\section{Comparação crítica}\label{sec:critica}
+
+Esta seção organiza a análise crítica em dois eixos: as hipóteses formuladas \emph{antes} dos experimentos
+(Seção~\ref{sec:experimentos}), com a evidência necessária para aceitá-las ou rejeitá-las, e os pontos
+positivos e negativos da abordagem, separando o que decorre da teoria e dos dados já examinados do que só os
+experimentos podem mostrar.
+
+\subsection{Hipóteses e evidência necessária}
+\begin{table}[htbp]
+\centering
+\caption{Hipóteses, evidência necessária e resultado empírico (a preencher após os experimentos).}
+\label{tab:hipoteses}
+\small
+\begin{tabularx}{\textwidth}{@{}c>{\hsize=1.15\hsize}L>{\hsize=.85\hsize}Lcc@{}}
+\toprule
+ & Hipótese (resumo) & Evidência necessária & Resultado & Veredito\\
+\midrule
+H1 & Hebb degrada com $K/N\gtrsim0{,}1$ & E1a e E1b (Tabela~\ref{tab:res-e1a}) & \lacuna & \lacuna\\
+H2 & Storkey $\ge$ Hebb com protótipos correlacionados & E1a, E1b e ablação (Tabela~\ref{tab:res-abl}) & \lacuna & \lacuna\\
+H3 & Moderna $>$ clássica & Protocolos~S e~U (Tabelas~\ref{tab:res-s} e~\ref{tab:res-u}); teste de Wilcoxon & \lacuna & \lacuna\\
+H4 & S: supervisionados $>$ Hopfield; U: Hopfield $\approx$ OC-SVM e \emph{k}-NN & Tabelas~\ref{tab:res-s} e~\ref{tab:res-u}; teste de Wilcoxon & \lacuna & \lacuna\\
+H5 & LLM \emph{zero-shot} fraco; \emph{few-shot} melhora, mas não supera o \emph{Random Forest} & Etapa~II (Tabela~\ref{tab:res-llm}) & \lacuna & \lacuna\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Critérios definidos antes dos experimentos (proposta).}
+\begin{itemize}
+  \item A PR-AUC de um detector aleatório é aproximadamente a prevalência (cerca de 4,16\,\% no conjunto);
+        um detector só é considerado informativo se superar esse patamar de forma consistente entre as máquinas.
+  \item O detector de Hopfield é considerado \emph{competitivo} se, no Protocolo~U, sua PR-AUC média não for
+        significativamente inferior à do melhor entre OC-SVM e \emph{k}-NN (Wilcoxon pareado por máquina, nível
+        de 5\,\%).
+  \item Diferenças entre configurações só são destacadas quando maiores que a variação entre as 3 sementes.
+\end{itemize}
+
+\subsection{Pontos positivos e negativos}
+A Tabela~\ref{tab:prospros} lista, por aspecto, o que a teoria e os dados já examinados permitem esperar; a
+última coluna é reservada às evidências dos experimentos.
+
+{\small
+\begin{longtable}{@{}P{2.8cm}P{4.3cm}P{4.3cm}P{3.1cm}@{}}
+\caption{Pontos positivos e negativos esperados (\emph{a priori}) e evidência empírica (a preencher).}
+\label{tab:prospros}\\
+\toprule
+Aspecto & Positivo (\emph{a priori}) & Negativo (\emph{a priori}) & Evidência empírica\\
+\midrule
+\endfirsthead
+\toprule
+Aspecto & Positivo (\emph{a priori}) & Negativo (\emph{a priori}) & Evidência empírica\\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\emph{continua na próxima página}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+Treinamento &
+Regras locais e incrementais (Hebb, Storkey): um novo padrão é somado sem revisitar os anteriores~\cite{wikihopfield}. Treino \emph{one-class}, sem rótulos, compatível com a metade de treino do SMD. &
+O treino não rotulado pode conter anomalias, que viram protótipos ``normais'' (contaminação). &
+\lacuna\\[2pt]
+Capacidade &
+Para padrões aleatórios, a rede moderna tem capacidade exponencial~\cite{ramsauer2021}. &
+A rede clássica guarda ${\approx}0{,}138N$ padrões~\cite{hertz1991}; bits do termômetro viesados reduzem a capacidade efetiva (Tabela~\ref{tab:codificacao}); poucos protótipos podem não cobrir um comportamento normal multimodal. &
+\lacuna\\[2pt]
+Estados espúrios &
+O escore $S_2$ (distância ao protótipo mais próximo) detecta o padrão invertido $-\xi$ (Apêndice~\ref{apx:exemplo}). &
+Mínimos espúrios, em número exponencial~\cite{bruckroychowdhury1990,ramsauer2021}, podem capturar uma observação anômala e mascará-la. &
+\lacuna\\[2pt]
+Representação &
+A codificação em termômetro preserva a ordem dos valores e dá uma distância de Hamming ordinal (Apêndice~\ref{apx:deriv}). &
+A binarização perde informação e multiplica a dimensão: $N$ de 67 a 412 para 38 atributos. &
+\lacuna\\[2pt]
+Tempo e deriva &
+Inferência rápida e com memória fixa: $O(N^2)$ valores na rede clássica. &
+Sem modelagem temporal (a menos de janelas); sensível à deriva entre treino e teste, que é heterogênea (Tabela~\ref{tab:deriva}); exige recalibração do limiar. &
+\lacuna\\[2pt]
+Custo computacional &
+Rede clássica: poucas operações por varredura. &
+A rede moderna guarda os $K$ padrões, com custo $O(NK)$ por consulta e $O(NK)$ de memória. &
+\lacuna\\[2pt]
+Interpreta\-bilidade &
+Os bits alterados na recuperação apontam atributos suspeitos (E4). &
+Atributos anônimos: sem significado para o operador. &
+\lacuna\\[2pt]
+Rede moderna &
+Recuperação em uma atualização; ligação com a atenção do \emph{Transformer}~\cite{ramsauer2021}. &
+A energia equivale a um escore de densidade por kernel (Seção~\ref{sec:moderna}): pouca vantagem esperada sobre \emph{k}-NN e KDE. &
+\lacuna\\[2pt]
+Adoção &
+Base teórica clara (energia, convergência). &
+A rede clássica é raramente usada em aprendizado de máquina moderno~\cite{wikihopfield}; não consta da lista de modelos do enunciado. &
+\lacuna\\
+\end{longtable}
+}
+
+\subsection{Síntese a priori}
+Se as hipóteses se confirmarem, o quadro esperado é: o Hopfield \emph{one-class} é útil onde rótulos são
+escassos ou inexistentes e a latência importa, mas não deve superar um classificador supervisionado quando há
+rótulos (H4); a variante moderna deve dar ganho sobre a clássica, porém semelhante ao de métodos de densidade
+(H3); e o LLM sem conhecimento prévio sobre métricas anônimas deve ficar abaixo dos modelos treinados (H5). Essas
+expectativas são \emph{hipóteses}: a Seção~\ref{sec:conclusoes} indica como serão revisadas diante dos
+resultados.

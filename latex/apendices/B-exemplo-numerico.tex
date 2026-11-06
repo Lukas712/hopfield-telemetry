@@ -1,0 +1,61 @@
+\section{Exemplo numérico com 5 neurônios}\label{apx:exemplo}
+
+O exemplo abaixo, calculado à mão e conferido numericamente, mostra a recuperação e os escores da
+Tabela~\ref{tab:escores} em uma rede com um único padrão armazenado, $\xi=(+1,-1,+1,-1,+1)$ e $N=5$. Para
+simplificar, $W=\xi\xi^{\top}-I$ (regra de Hebb sem o fator $1/N$ da Eq.~\eqref{eq:hebb}, o que não altera a
+dinâmica com $\theta=0$; com o fator, todas as energias ficam divididas por $N=5$). Assim
+$w_{ij}=\xi_i\xi_j$ para $i\neq j$ e $w_{ii}=0$.
+
+\paragraph{Energia em função da sobreposição.} Como $\sum_{i,j}\xi_i\xi_js_is_j=(\xi\cdot s)^2$ e os termos
+diagonais somam $N$,
+\[
+E(s)=-\tfrac12 s^{\top}Ws=-\tfrac12\bigl[(\xi\cdot s)^2-N\bigr].
+\]
+O padrão armazenado tem $\xi\cdot\xi=5$ e $E(\xi)=-\tfrac12(25-5)=-10$.
+
+\paragraph{Consulta com um bit diferente.} Seja $s^0=(+1,-1,-1,-1,+1)$, que difere de $\xi$ no neurônio~3, com
+$\xi\cdot s^0=3$ e $E(s^0)=-\tfrac12(9-5)=-2$. O campo local de cada neurônio é
+$h_i=\sum_{j\neq i}\xi_i\xi_js_j=\xi_i(\xi\cdot s)-s_i$:
+\begin{center}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Neurônio $i$ & 1 & 2 & 3 & 4 & 5\\
+\midrule
+$\xi_i$ & $+1$ & $-1$ & $+1$ & $-1$ & $+1$\\
+$s^0_i$ & $+1$ & $-1$ & $-1$ & $-1$ & $+1$\\
+$h_i=3\xi_i-s^0_i$ & $2$ & $-2$ & $4$ & $-2$ & $2$\\
+$\sgn(h_i)$ & $+1$ & $-1$ & $+1$ & $-1$ & $+1$\\
+$s^{\ast}_i$ & $+1$ & $-1$ & $+1$ & $-1$ & $+1$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Só o neurônio~3 muda: $s^0_3=-1$ e $h_3=4>0$. Qualquer que seja a ordem de visita, o resultado é o mesmo:
+$\sstar=\xi$, em uma varredura com troca (mais uma sem troca, que confirma o ponto fixo). A variação de energia
+da troca é $-(s_3'-s_3)h_3=-2\cdot4=-8$, de $-2$ para $-10$, como previsto pela demonstração da
+Proposição~\ref{prop:conv}.
+
+\paragraph{Consulta igual ao padrão invertido.} Com $s^0=-\xi$, $\xi\cdot s^0=-5$ e
+$h_i=-5\xi_i-s^0_i=-4\xi_i=4s^0_i$: cada neurônio já concorda com o sinal do seu campo, e $-\xi$ é um ponto fixo
+com $E(-\xi)=-10=E(\xi)$, porque a energia é par em $s$ quando $\theta=0$. A rede não reconhece nada de errado;
+só os escores que medem a distância \emph{com sinal} aos protótipos, $S_2$ e $S_5$, denunciam o padrão invertido.
+
+\begin{table}[htbp]
+\centering
+\caption{Escores do exemplo (Tabela~\ref{tab:escores}). Quanto maior, mais anômalo; $S_3$ e $S_4$ têm a escala da
+energia sem o fator $1/N$.}
+\label{tab:ex-escores}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Consulta $s^0$ & $S_1$ & $S_2$ & $S_3$ & $S_4$ & $S_5$ & $S_6$\\
+\midrule
+$\xi$ (padrão armazenado) & 0 & 0 & $-10$ & 0 & 0 & 0\\
+$(+1,-1,-1,-1,+1)$ (1 bit diferente) & 0,2 & 0,2 & $-2$ & 8 & 0 & 1\\
+$-\xi$ (padrão invertido) & 0 & 1 & $-10$ & 0 & 1 & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent A Tabela~\ref{tab:ex-escores} resume a lição: $S_1$, $S_3$ e $S_4$ (que dependem só da dinâmica e da energia) dão
+valores indistinguíveis dos do padrão armazenado para $-\xi$; por isso o detector usa também $S_2$ e $S_5$.

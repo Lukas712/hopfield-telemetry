@@ -1,0 +1,176 @@
+\section{Descrição do problema e dos dados}\label{sec:dados}
+
+\subsection{Definição do problema}\label{sec:problema}
+Considere uma máquina monitorada continuamente. A cada minuto $t$ são coletadas $D=38$ métricas de utilização
+e de atividade, que formam o vetor $x_t\in[0,1]^{D}$. Especialistas de domínio marcaram os intervalos em que a
+máquina esteve em incidente, o que fornece o rótulo $y_t\in\{0,1\}$ ($0$ = normal, $1$ = anômalo). A tarefa é
+uma \emph{classificação binária por ponto}: dado $x_t$ (opcionalmente com uma janela de observações anteriores),
+prever $y_t$ por
+\begin{equation}\label{eq:decisao}
+\hat y_t=\mathbf 1\bigl[\,a(x_t)>\tau\,\bigr],
+\end{equation}
+em que $a(\cdot)$ é um \emph{escore de anomalia} (quanto maior, mais anômalo) e $\tau$ é um limiar escolhido em
+dados de validação. A rede de Hopfield produz o escore $a$ (Seção~\ref{sec:escores}); as linhas de base
+produzem $\hat y_t$ diretamente ou por um escore equivalente.
+
+\begin{itemize}
+  \item \textbf{Entrada (atributos):} $x_t\in[0,1]^{38}$, com 38 métricas numéricas anônimas (``carga de CPU,
+        uso de rede, uso de memória etc.''~\cite{su2019}), sem nomes nem unidades, amostradas a cada minuto.
+  \item \textbf{Saída desejada:} o rótulo $y_t\in\{0,1\}$ e, no caso do detector, o escore $a(x_t)$.
+  \item \textbf{Unidade de modelagem:} cada máquina é tratada separadamente, com seus próprios dados de
+        treino e de teste~\cite{su2019}.
+\end{itemize}
+
+\subsection{O conjunto de dados SMD}\label{sec:smd}
+Adotamos o \emph{Server Machine Dataset} (SMD), publicado por Su et al.~\cite{su2019} e disponibilizado no
+repositório do OmniAnomaly~\cite{omnianomaly}. Ele reúne cerca de cinco semanas de telemetria de 28 máquinas
+(``entidades'') de uma grande empresa de Internet, divididas em três grupos de 8, 9 e 11 máquinas, com 38
+métricas por máquina e amostragem de 1 minuto. Para cada máquina, a primeira metade da série é o conjunto de
+treino (\emph{sem rótulos}) e a segunda é o conjunto de teste, rotulado por especialistas de domínio a partir de
+relatórios de incidentes~\cite{su2019}. Os dados \emph{não} são redistribuídos neste projeto
+(Seção~\ref{sec:repro}).
+
+Calculamos as estatísticas a seguir diretamente dos arquivos do repositório. Há 708.405 linhas de treino e
+708.420 de teste (as duas metades de uma máquina diferem em no máximo uma linha). Dos pontos de teste,
+29.444 (4,16\,\%) são anômalos e se agrupam em 327 segmentos contíguos, com duração média de 90,0 min e
+extremos de 2 e 3.161 min. Um classificador que responde sempre ``normal'' acerta 95,84\,\% dos pontos de
+teste; portanto a acurácia, isoladamente, é uma métrica inadequada (Seção~\ref{sec:metricas}). A
+Tabela~\ref{tab:grupos} resume os três grupos; o Apêndice~\ref{apx:maquinas} traz os números por máquina.
+
+\begin{table}[htbp]
+\centering
+\caption{SMD por grupo. Estatísticas calculadas pelos autores sobre os arquivos do repositório. Anôm. =
+pontos anômalos do teste; Seg. = segmentos anômalos; Prev. = prevalência de anomalias por máquina (mínimo e
+máximo do grupo).}
+\label{tab:grupos}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{crrrrcr}
+\toprule
+Grupo & Máquinas & Pontos de teste & Anôm. (\%) & Seg. & Prev. por máquina & Linhas de treino\\
+\midrule
+1 & 8  & 194.374 & 11.742 (6,04) & 112 & 0,42--15,65\,\% & 194.369\\
+2 & 9  & 223.325 &  9.703 (4,34) & 114 & 0,68--11,95\,\% & 223.320\\
+3 & 11 & 290.721 &  7.999 (2,75) & 101 & 0,69--4,78\,\%  & 290.716\\
+\midrule
+Total & 28 & 708.420 & 29.444 (4,16) & 327 & 0,42--15,65\,\% & 708.405\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Na máquina 1-1, que usamos como exemplo ao longo do texto, cada metade tem $28.479\times38$ valores, todos em
+$[0,1]$, sem valores ausentes e sem linhas de treino duplicadas. A verificação das demais máquinas faz parte
+da preparação (Seção~\ref{sec:prep}).
+
+\subsection{Três exemplos reais}\label{sec:exemplos}
+A Tabela~\ref{tab:exemplos} mostra três observações reais da máquina \texttt{machine-1-1}: uma normal
+(linha 15.000 do arquivo de teste) e duas anômalas (linhas 16.100 e 17.200, dentro dos segmentos 15.850--16.395
+e 16.964--17.517). Por brevidade, mostramos 10 dos 38 atributos --- os que o arquivo
+\texttt{interpretation\_label} associa a esses segmentos --- junto com a mediana, o percentil 95 e o máximo
+do \emph{treino}. O arquivo \texttt{interpretation\_label} indica, para cada segmento anômalo, os atributos
+que o explicam (numerados a partir de 1); seus intervalos diferem ligeiramente dos do arquivo de rótulos
+(por exemplo, 15.849--16.368 contra 15.850--16.395).
+
+\begin{table}[htbp]
+\centering
+\caption{Três exemplos reais da máquina \texttt{machine-1-1} (linhas do arquivo de teste, contadas a partir de
+1) e estatísticas dos mesmos atributos no treino. Atributos numerados a partir de 1. Em negrito, valor acima do
+máximo do treino. O atributo 29 é constante (igual a zero) em todo o treino.}
+\label{tab:exemplos}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{rcccccc}
+\toprule
+ & \multicolumn{3}{c}{Teste} & \multicolumn{3}{c}{Treino}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Atributo & linha 15.000 & linha 16.100 & linha 17.200 & mediana & p95 & máximo\\
+ & ($y=0$) & ($y=1$) & ($y=1$) & & &\\
+\midrule
+1  & 0,0968 & \textbf{0,5161} & \textbf{0,5161} & 0,0430 & 0,1398 & 0,4946\\
+2  & 0,0794 & 0,0816 & 0,1250 & 0,0456 & 0,1409 & 0,4216\\
+9  & 0,0288 & 0,0129 & 0,0254 & 0,0210 & 0,0355 & 0,1181\\
+10 & 0,0000 & 0,0035 & 0,0182 & 0,0000 & 0,0004 & 0,1404\\
+12 & 0,1081 & 0,2297 & 0,1351 & 0,0946 & 0,1622 & 0,7432\\
+13 & 0,0274 & 0,0548 & 0,0548 & 0,0274 & 0,0548 & 0,3151\\
+14 & 0,0575 & 0,0314 & 0,0700 & 0,0500 & 0,0781 & 0,1231\\
+15 & 0,1250 & 0,0684 & 0,0965 & 0,0969 & 0,1395 & 0,5650\\
+25 & 0,0493 & 0,0313 & 0,0364 & 0,0145 & 0,0561 & 0,1796\\
+29 & 0,0000 & 0,0000 & 0,0000 & 0,0000 & 0,0000 & 0,0000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+No exemplo da linha 16.100, o atributo 1 sobe a 0,5161, acima de todo o treino (máximo 0,4946), e o atributo 12
+chega a 0,2297, acima do percentil 95 do treino (0,1622). No exemplo da linha 17.200, o atributo 1 repete o
+valor 0,5161, mas os demais desvios são pequenos em valor absoluto: o atributo 10 vale 0,0182, muito acima do
+percentil 95 do treino (0,0004) e ainda assim dentro do intervalo observado (máximo 0,1404). A tarefa já
+mostra, portanto, uma dificuldade típica: ``anômalo'' nem sempre significa ``fora da faixa''. Em toda a
+máquina 1-1, apenas 18,19\,\% dos pontos anômalos têm o atributo 1 acima do máximo do treino (contra 0,19\,\%
+dos normais) e apenas 1,00\,\% têm o atributo 10 acima do seu máximo (contra 0,00\,\% dos normais).
+
+\subsection{Exploração dos dados: atributos constantes e deriva}\label{sec:exploracao}
+\paragraph{Atributos constantes.} Na máquina 1-1, 8 dos 38 atributos são constantes no treino (atributos 5, 8,
+17, 18, 27, 29, 37 e 38), restando 30 atributos variáveis. No teste, o atributo 27 deixa de ser constante em
+22 linhas (todas anômalas) e o atributo 29 em 225 linhas (211 anômalas e 14 normais). Um atributo que ``nunca
+se mexia'' e passa a se mexer é um sinal de novidade que a codificação precisa preservar
+(Seção~\ref{sec:codificacao}).
+
+\paragraph{Deriva entre treino e teste.} Como o teste vem depois do treino, a distribuição dos atributos pode
+mudar mesmo sem anomalias (\emph{drift}). Para quatro máquinas (1-1, 1-3, 2-5 e 3-6) comparamos, atributo a
+atributo, a distribuição do treino com a das linhas \emph{normais} do teste pela estatística de
+Kolmogorov--Smirnov (KS), e contamos as linhas com ao menos um atributo acima do máximo do treino
+(Tabela~\ref{tab:deriva}).
+
+\begin{table}[htbp]
+\centering
+\caption{Deriva entre treino e teste em quatro máquinas (cálculo próprio). KS: estatística de Kolmogorov--Smirnov
+entre o treino e as linhas normais do teste, sobre os atributos variáveis. ``Acima do máx.'': percentual de
+linhas do teste com ao menos um atributo acima do máximo do treino.}
+\label{tab:deriva}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l>{\hsize=.75\hsize}Y>{\hsize=.85\hsize}Y>{\hsize=.7\hsize}Y>{\hsize=1.2\hsize}Y>{\hsize=1.5\hsize}L@{}}
+\toprule
+Máquina & Atributos variáveis & Atributos com KS\,$>0{,}2$ & KS mediana & Acima do máx.: normais / anômalas & Atributos constantes no treino\\
+\midrule
+1-1 & 30 & 22 & 0,37 & 30,1\,\% / 71,6\,\% & 8 (5, 8, 17, 18, 27, 29, 37, 38)\\
+1-3 & 34 & 7  & 0,08 & 0,9\,\% / 18,0\,\%  & 4 (8, 27, 37, 38)\\
+2-5 & 31 & 2  & 0,06 & 1,1\,\% / 17,2\,\%  & 7 (5, 8, 17, 18, 29, 37, 38)\\
+3-6 & 30 & 7  & 0,13 & 6,5\,\% / 35,8\,\%  & 8 (5, 8, 17, 18, 27, 29, 37, 38)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A deriva é \emph{heterogênea}: forte na máquina 1-1 (22 dos 30 atributos com KS\,$>0{,}2$; KS máximo de 0,70 no
+atributo 30) e leve em 1-3 e 2-5. Na máquina 1-1, o atributo 30 sozinho responde por 26,79\,\% das linhas normais
+acima do máximo do treino (atributos 4 e 3: 5,41\,\% e 3,91\,\%), e apenas 0,02\,\% das linhas têm algum atributo
+abaixo do mínimo do treino. Excluindo esses três atributos, o percentual de linhas acima do máximo cai para
+5,4\,\% nas normais contra 43,5\,\% nas anômalas. Duas conclusões orientam a metodologia: (i) ``acima do máximo
+do treino'' \emph{sozinho} é um detector pobre, pois dispara em muitas linhas normais quando há deriva e deixa
+passar muitas anomalias quando não há; (ii) a calibração do limiar e, em implantações reais, a atualização
+periódica do modelo são essenciais.
+
+\subsection{Adequação ao tema e limitações do conjunto}\label{sec:adequacao}
+\paragraph{Pontos favoráveis.} Os dados são reais, de produção, com métricas de utilização e de atividade
+por máquina; os rótulos vêm de incidentes registrados; e o treino é \emph{sem rótulos}, o que combina com o
+treinamento \emph{one-class} da rede de Hopfield (Seção~\ref{sec:conceito}).
+
+\paragraph{Limitações.}
+\begin{itemize}
+  \item \textbf{``Baixo nível'' é aproximado.} São 38 contadores anonimizados de utilização de recursos, sem
+        chamadas de sistema nem rastros de \emph{kernel}. O SMD é um substituto para estudar a abordagem; a
+        coleta própria de telemetria (\texttt{psutil}, eBPF) com injeção de falhas é trabalho
+        futuro (Seção~\ref{sec:conclusoes}).
+  \item \textbf{Atributos anônimos.} Sem nomes ou unidades, não há semântica a explorar na interpretação dos
+        resultados nem como conhecimento prévio de um LLM (Etapa~II).
+  \item \textbf{Rótulos de incidentes.} As fronteiras dos segmentos são imprecisas (basta ver a diferença entre
+        os arquivos de rótulos e de interpretação) e o rótulo vale para o intervalo inteiro, mesmo que o
+        efeito nas métricas varie dentro dele.
+  \item \textbf{Treino sem rótulos.} A metade de treino pode conter anomalias não marcadas; assumimos que é
+        majoritariamente normal.
+  \item \textbf{Heterogeneidade.} A prevalência varia de 0,42\,\% a 15,65\,\% por máquina, e a deriva também
+        (Tabela~\ref{tab:deriva}). Várias máquinas não têm anomalias em algum dos blocos cronológicos usados
+        para treinar, validar e testar (Seção~\ref{sec:divisao}).
+  \item \textbf{Licença.} O repositório do OmniAnomaly declara licença MIT; confirmar os termos de uso dos
+        dados antes de qualquer redistribuição.
+\end{itemize}

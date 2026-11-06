@@ -1,0 +1,78 @@
+\section{Introdução}\label{sec:intro}
+
+\subsection{Contexto e motivação}
+Sistemas operacionais e servidores expõem continuamente contadores de utilização e de atividade em baixo
+nível --- carga de CPU, uso de memória, tráfego de rede, entre outros. Essa \emph{telemetria} é a base do
+monitoramento: quando o comportamento de uma máquina se afasta do habitual (um vazamento de memória, um
+processo descontrolado, uma falha de rede), o desvio aparece nas métricas antes de se tornar uma
+interrupção visível. Detectar automaticamente esses desvios é o problema clássico de \emph{detecção de
+anomalias}~\cite{chandola2009}.
+
+A dificuldade prática é dupla. Primeiro, anomalias são raras e heterogêneas: nos dados deste trabalho
+apenas 4,16\,\% dos pontos de teste são anômalos (Seção~\ref{sec:dados}), de modo que é impossível
+enumerar de antemão todas as formas de falha. Segundo, o rótulo ``anômalo'' costuma vir de relatórios de
+incidentes, ao passo que o comportamento \emph{normal} está disponível em abundância e sem rótulo. Isso
+favorece abordagens que \emph{aprendem o que é normal} e tratam como anomalia aquilo que não se encaixa.
+
+As redes de Hopfield~\cite{hopfield1982} são um ajuste natural a essa ideia. Trata-se de uma rede neural
+recorrente totalmente conectada, cujo estado evolui, sob pesos simétricos, até um mínimo local de uma função
+de energia. Os padrões gravados na matriz de pesos tornam-se atratores, e apresentar à rede uma entrada
+parcial ou ruidosa a faz convergir para o padrão armazenado mais próximo~\cite{hopfieldtank1985}. Se os
+padrões armazenados descrevem o funcionamento normal, esperamos que uma observação normal seja
+``corrigida'' para um padrão familiar com pouco esforço, enquanto uma observação anômala permaneça distante
+de qualquer atrator ou seja atraída para um estado que não corresponde a nenhuma memória. Essa diferença na
+recuperação pode ser convertida em um escore de anomalia. A ideia é uma hipótese de trabalho, não um
+resultado: avaliá-la é o objetivo do projeto.
+
+\subsection{Objetivos}
+\paragraph{Objetivo geral.} Avaliar a capacidade de uma rede de Hopfield de armazenar padrões de
+funcionamento normal e reconhecer comportamentos que se desviam desses padrões, tratando a detecção de
+anomalias em telemetria de sistemas como um problema de classificação binária (normal $\times$ anômalo).
+
+\paragraph{Objetivos específicos.}
+\begin{enumerate}
+  \item Revisar o modelo de Hopfield em suas formas discreta, contínua (Hopfield--Tank) e moderna
+        (Ramsauer et al.), com foco em energia, convergência, capacidade e estados espúrios.
+  \item Formalizar um detector \emph{one-class} baseado em recuperação associativa, com escores definidos a
+        partir de distância de Hamming e de energia.
+  \item Caracterizar o conjunto de dados (SMD): amostras, atributos, rótulos, desbalanceamento e deriva.
+  \item Definir o protocolo experimental: preparação, codificação binária, divisões cronológicas, métricas
+        e linhas de base clássicas (Etapa~I).
+  \item Definir o protocolo da Etapa~II (LLM com \emph{zero-shot} e \emph{few-shot}) sobre os mesmos dados.
+  \item Formular hipóteses verificáveis e critérios para a comparação crítica dos resultados.
+\end{enumerate}
+
+\subsection{Pergunta de pesquisa}
+\emph{Uma memória associativa de Hopfield, treinada somente com telemetria predominantemente normal,
+separa pontos normais de pontos anômalos? E como esse desempenho se compara ao de classificadores clássicos
+e ao de um LLM usado por \emph{prompting}?}
+
+\subsection{Escopo e premissas}
+\begin{notabox}{Escopo desta versão do relatório}
+\begin{itemize}
+  \item \textbf{Projeto e fundamentação, sem experimentos.} Este texto não contém resultados de modelos.
+        As tabelas da Seção~\ref{sec:resultados} têm células vazias (\lacuna) a preencher após os
+        experimentos; nenhum valor foi inventado. Os números das Seções~\ref{sec:dados} e~\ref{sec:metodo}
+        são estatísticas reais do SMD (contagens, divisões e exploração dos dados) e estão identificados
+        como tais.
+  \item \textbf{Hopfield não consta da lista do enunciado.} Para classificação, o enunciado cita \emph{Decision
+        Trees}, \emph{Random Forest}, \emph{Naive Bayes}, SVM, MLP, XGBoost e KNN~\cite{enunciado}. Adotamos
+        a rede de Hopfield como \emph{modelo do tema} e \emph{Random Forest} e SVM como linhas de base
+        (mínimo de 2 modelos da Etapa~I). \textbf{Confirmar este arranjo com o professor.}
+  \item \textbf{``Baixo nível'' no SMD.} São 38 contadores anonimizados de utilização de recursos, sem
+        chamadas de sistema nem rastros de \emph{kernel}. Coletar telemetria própria é trabalho futuro
+        (Seção~\ref{sec:conclusoes}).
+  \item \textbf{Etapa~II é um protocolo.} A execução exige acesso a um modelo de linguagem; aqui
+        documentamos tarefa, \emph{prompt}, amostragem e métricas (Apêndice~\ref{apx:prompt}).
+  \item \textbf{Propostas, não resultados.} Divisões, hiperparâmetros e linhas de base são decisões de
+        projeto a validar; as derivações próprias estão sinalizadas como tais.
+\end{itemize}
+\end{notabox}
+
+\subsection{Organização do texto}
+A Seção~\ref{sec:teoria} apresenta a fundamentação teórica. A Seção~\ref{sec:dados} define o problema e
+descreve o conjunto de dados, e a Seção~\ref{sec:metodo} detalha a metodologia, incluindo as Etapas~I e~II.
+A Seção~\ref{sec:resultados} reserva as tabelas de resultados, a Seção~\ref{sec:critica} traz a comparação
+crítica (hipóteses e pontos positivos e negativos) e a Seção~\ref{sec:conclusoes} fecha com conclusões e
+próximos passos. Os apêndices reúnem pseudocódigo, um exemplo numérico, o \emph{prompt}, o cronograma, o
+mapeamento dos requisitos do enunciado, derivações e a tabela das 28 máquinas.

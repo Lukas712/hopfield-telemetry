@@ -1,0 +1,65 @@
+\section{Conclusões}\label{sec:conclusoes}
+
+\subsection{O que já pode ser afirmado}
+O texto desta versão sustenta as afirmações abaixo, baseadas na teoria e na exploração dos dados; nenhuma delas
+depende de resultados de modelos.
+\begin{itemize}
+  \item A rede de Hopfield discreta é uma memória associativa cuja dinâmica assíncrona não aumenta a energia e
+        termina em um ponto fixo (Proposição~\ref{prop:conv}); isso a torna um filtro de recuperação bem
+        definido, mas com capacidade limitada (${\approx}0{,}138N$) e estados espúrios, entre eles o padrão
+        invertido $-\xi$ (Seção~\ref{sec:capacidade}).
+  \item Formulamos um detector \emph{one-class} sobre essa rede, com escores baseados em distância de Hamming e
+        em energia (Seção~\ref{sec:escores}). Mostramos, por derivação própria, que o escore de energia da rede
+        moderna é um mínimo suave de distâncias, equivalente a uma densidade por kernel
+        (Seção~\ref{sec:moderna}); por isso não esperamos vantagem automática sobre \emph{k}-NN ou KDE.
+  \item No SMD, apenas 4,16\,\% dos pontos de teste são anômalos; um classificador que sempre responde
+        ``normal'' acerta 95,84\,\%, o que torna a acurácia, isoladamente, uma métrica inadequada
+        (Seção~\ref{sec:smd}).
+  \item Os dados têm atributos constantes no treino que passam a variar em anomalias, deriva heterogênea entre
+        treino e teste e muitas anomalias sutis, dentro da faixa do treino; ``acima do máximo'' sozinho é um
+        detector pobre (Seção~\ref{sec:exploracao}).
+  \item A codificação em termômetro produz de 67 a 412 bits e bits viesados; armazenar todos os pontos de
+        treino é inviável (de 501 a 3.080 vezes a capacidade clássica), o que exige poucos protótipos
+        (Seção~\ref{sec:codificacao}).
+  \item Só 18 das 28 máquinas permitem um protocolo supervisionado completo (23 para modelos \emph{one-class});
+        o Protocolo~U cobre as 28 (Seção~\ref{sec:divisao}).
+\end{itemize}
+
+\subsection{O que depende dos experimentos}
+Dependem de execução: se o detector de Hopfield separa pontos normais de anômalos acima do acaso e de métodos
+\emph{one-class} simples; o efeito de $b$, $K$ e da regra de armazenamento; se a dinâmica recorrente
+acrescenta algo à busca do protótipo mais próximo; se a rede moderna supera a clássica; e o comportamento do LLM
+na Etapa~II. As hipóteses H1--H5 e os critérios de decisão estão na Seção~\ref{sec:critica}; os resultados
+serão registrados na Seção~\ref{sec:resultados}.
+
+\subsection{Limitações}
+\begin{itemize}
+  \item \textbf{Representação:} a binarização perde informação; bits correlacionados e viesados reduzem a
+        capacidade efetiva; poucos protótipos podem não cobrir um comportamento normal multimodal.
+  \item \textbf{Modelo:} estados espúrios podem mascarar anomalias; a memória da rede clássica cresce com
+        $N^2$; não há modelagem temporal, a menos de janelas; a rede é sensível a hiperparâmetros e ao limiar.
+  \item \textbf{Dados:} atributos anônimos e de ``baixo nível'' apenas aproximado; rótulos de incidentes com
+        fronteiras imprecisas; treino sem rótulos e possivelmente contaminado; deriva entre treino e teste;
+        grande variação entre máquinas.
+  \item \textbf{Escopo:} esta versão não traz resultados experimentais nem a execução da Etapa~II, e o Hopfield
+        não consta da lista de modelos do enunciado (a confirmar com o professor).
+\end{itemize}
+
+\subsection{Próximos passos}
+\begin{enumerate}
+  \item Confirmar com o professor o uso da rede de Hopfield como modelo do tema, com \emph{Random Forest} e SVM
+        como linhas de base da Etapa~I.
+  \item Implementar o \emph{pipeline} (codificação, protótipos, Hebb e Storkey, recuperação, escores) e
+        validá-lo com E1a (Tabela~\ref{tab:res-e1a}).
+  \item Executar E1b, E2 (Protocolos~S e~U), as ablações e as linhas de base, e preencher a
+        Seção~\ref{sec:resultados}.
+  \item Executar a Etapa~II com um modelo de linguagem, registrando modelo, versão, tempo e custo.
+  \item Revisar a Seção~\ref{sec:critica} e estas conclusões à luz dos resultados.
+  \item Preparar a apresentação remota (cronograma proposto no Apêndice~\ref{apx:cronograma}).
+\end{enumerate}
+
+\paragraph{Trabalhos futuros.} (i) Combinar o detector com uma regra explícita para atributos que saem de
+um valor constante, já que o bit de novidade tem peso apenas $1/N$; (ii) testar uma regra de Hebb centrada para
+bits viesados; (iii) usar a rede moderna com memória grande e janelas temporais; (iv) coletar telemetria própria
+em baixo nível (por exemplo, com \texttt{psutil} ou eBPF) e injetar falhas controladas (por exemplo, com
+\texttt{stress-ng}); (v) reajustar periodicamente o modelo diante da deriva.

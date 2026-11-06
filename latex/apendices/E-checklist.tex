@@ -1,0 +1,87 @@
+\section{Conformidade com o enunciado}\label{apx:checklist}
+
+\newcommand{\stpronto}{\textcolor{green!45!black}{\textbf{Pronto}}}
+\newcommand{\stparcial}{\textcolor{orange!80!black}{\textbf{Parcial}}}
+\newcommand{\stpendente}{\textcolor{red!70!black}{\textbf{Pendente}}}
+
+A Tabela~\ref{tab:checklist} relaciona cada exigência do enunciado~\cite{enunciado} ao local do relatório e ao seu
+estado. \stpronto: texto ou dados concluídos nesta versão; \stparcial: método, critérios e formato de relato
+fixados, mas a evidência depende dos experimentos; \stpendente: ainda a fazer.
+
+{\small
+\begin{longtable}{@{}p{5.4cm}p{3.7cm}p{5.4cm}@{}}
+\caption{Exigências do enunciado, local no relatório e estado.}\label{tab:checklist}\\
+\toprule
+Exigência & Onde & Estado\\
+\midrule
+\endfirsthead
+\toprule
+Exigência & Onde & Estado\\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\emph{continua na próxima página}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+Escolha do problema e da base de dados; tipo (classificação) &
+Seções~\ref{sec:problema} e~\ref{sec:smd} &
+\stpronto: classificação binária por ponto no SMD\\[3pt]
+Definições do problema e do conjunto de treinamento &
+Seções~\ref{sec:problema} e~\ref{sec:smd} &
+\stpronto\\[3pt]
+2 a 3 exemplos da base de dados &
+Seção~\ref{sec:exemplos} &
+\stpronto: 3 observações reais da máquina 1-1\\[3pt]
+Valores desejados e atributos &
+Seções~\ref{sec:problema} e~\ref{sec:smd} &
+\stpronto: rótulo 0/1 e 38 atributos\\[3pt]
+Quantidade de amostras &
+Seção~\ref{sec:smd}; Apêndice~\ref{apx:maquinas} &
+\stpronto\\[3pt]
+Preparação e limpeza &
+Seção~\ref{sec:prep} &
+\stpronto\\[3pt]
+Balanceamento de classes &
+Seção~\ref{sec:balanceamento} &
+\stpronto\\[3pt]
+Divisão dos conjuntos &
+Seção~\ref{sec:divisao} &
+\stpronto\\[3pt]
+Métricas de avaliação &
+Seção~\ref{sec:metricas} &
+\stpronto\\[3pt]
+Etapa~I: ao menos 2 modelos de classificação &
+Seção~\ref{sec:baselines}; Seção~\ref{sec:resultados} &
+\stparcial: protocolo definido, execução pendente; o Hopfield não consta da lista do enunciado (confirmar com o
+professor)\\[3pt]
+Métricas mínimas: acurácia, precisão, revocação, $F$-scores, AUC-ROC e matriz de confusão &
+Seção~\ref{sec:metricas}; Tabelas~\ref{tab:res-s} e~\ref{tab:res-conf} &
+\stparcial: formato fixado, valores pendentes\\[3pt]
+Etapa~II: classificação por \emph{prompting} (descrição da tarefa, \emph{zero-shot}, \emph{few-shot} com
+$\{3,5,10,20\}$) &
+Seção~\ref{sec:etapa2}; Apêndice~\ref{apx:prompt} &
+\stparcial: \emph{prompt} documentado, execução pendente\\[3pt]
+Etapa~II: repetir as métricas; tempo por 100 amostras e custo estimado &
+Seção~\ref{sec:etapa2}; Tabelas~\ref{tab:res-llm} e~\ref{tab:registro-llm} &
+\stparcial: formato fixado, valores pendentes\\[3pt]
+Mesmos dados da Etapa~I; documentar \emph{prompt} e versão do modelo &
+Seção~\ref{sec:etapa2}; Apêndice~\ref{apx:prompt} &
+\stparcial: \emph{prompt} documentado, versão do modelo pendente\\[3pt]
+Comparação crítica (pontos positivos e negativos) &
+Seção~\ref{sec:critica} &
+\stparcial: critérios e análise \emph{a priori} prontos, evidência empírica pendente\\[3pt]
+Conclusões: o que funciona, limites e próximos passos &
+Seção~\ref{sec:conclusoes} &
+\stparcial: limites e próximos passos prontos; ``o que funciona'' depende dos experimentos\\[3pt]
+Equipe de no máximo 3 integrantes &
+Folha de rosto; Apêndice~\ref{apx:cronograma} &
+\stpendente: nomes e instituição\\[3pt]
+Relatório técnico &
+Este documento &
+\stparcial: estrutura completa, resultados pendentes\\[3pt]
+Apresentação remota (02 e 04/12) &
+Apêndice~\ref{apx:cronograma} &
+\stpendente\\
+\end{longtable}
+}
